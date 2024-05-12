@@ -1,341 +1,234 @@
-/*
-	Story by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
-*/
-
-(function($) {
-
-	var	$window = $(window),
-		$body = $('body'),
-		$wrapper = $('#wrapper');
-
-	// Breakpoints.
-		breakpoints({
-			xlarge:   [ '1281px',  '1680px' ],
-			large:    [ '981px',   '1280px' ],
-			medium:   [ '737px',   '980px'  ],
-			small:    [ '481px',   '736px'  ],
-			xsmall:   [ '361px',   '480px'  ],
-			xxsmall:  [ null,      '360px'  ]
-		});
-
-	// Play initial animations on page load.
-		$window.on('load', function() {
-			window.setTimeout(function() {
-				$body.removeClass('is-preload');
-			}, 100);
-		});
-
-	// Browser fixes.
-
-		// IE: Flexbox min-height bug.
-			if (browser.name == 'ie')
-				(function() {
-
-					var flexboxFixTimeoutId;
-
-					$window.on('resize.flexbox-fix', function() {
-
-						var $x = $('.fullscreen');
-
-						clearTimeout(flexboxFixTimeoutId);
-
-						flexboxFixTimeoutId = setTimeout(function() {
-
-							if ($x.prop('scrollHeight') > $window.height())
-								$x.css('height', 'auto');
-							else
-								$x.css('height', '100vh');
-
-						}, 250);
-
-					}).triggerHandler('resize.flexbox-fix');
-
-				})();
-
-		// Object fit workaround.
-			if (!browser.canUse('object-fit'))
-				(function() {
-
-					$('.banner .image, .spotlight .image').each(function() {
-
-						var $this = $(this),
-							$img = $this.children('img'),
-							positionClass = $this.parent().attr('class').match(/image-position-([a-z]+)/);
-
-						// Set image.
-							$this
-								.css('background-image', 'url("' + $img.attr('src') + '")')
-								.css('background-repeat', 'no-repeat')
-								.css('background-size', 'cover');
-
-						// Set position.
-							switch (positionClass.length > 1 ? positionClass[1] : '') {
-
-								case 'left':
-									$this.css('background-position', 'left');
-									break;
-
-								case 'right':
-									$this.css('background-position', 'right');
-									break;
-
-								default:
-								case 'center':
-									$this.css('background-position', 'center');
-									break;
-
-							}
-
-						// Hide original.
-							$img.css('opacity', '0');
-
-					});
-
-				})();
-
-	// Smooth scroll.
-		$('.smooth-scroll').scrolly();
-		$('.smooth-scroll-middle').scrolly({ anchor: 'middle' });
-
-	// Wrapper.
-		$wrapper.children()
-			.scrollex({
-				top:		'30vh',
-				bottom:		'30vh',
-				initialize:	function() {
-					$(this).addClass('is-inactive');
-				},
-				terminate:	function() {
-					$(this).removeClass('is-inactive');
-				},
-				enter:		function() {
-					$(this).removeClass('is-inactive');
-				},
-				leave:		function() {
-
-					var $this = $(this);
-
-					if ($this.hasClass('onscroll-bidirectional'))
-						$this.addClass('is-inactive');
-
-				}
-			});
-
-	// Items.
-		$('.items')
-			.scrollex({
-				top:		'30vh',
-				bottom:		'30vh',
-				delay:		50,
-				initialize:	function() {
-					$(this).addClass('is-inactive');
-				},
-				terminate:	function() {
-					$(this).removeClass('is-inactive');
-				},
-				enter:		function() {
-					$(this).removeClass('is-inactive');
-				},
-				leave:		function() {
-
-					var $this = $(this);
-
-					if ($this.hasClass('onscroll-bidirectional'))
-						$this.addClass('is-inactive');
-
-				}
-			})
-			.children()
-				.wrapInner('<div class="inner"></div>');
-
-	// Gallery.
-		$('.gallery')
-			.wrapInner('<div class="inner"></div>')
-			.prepend(browser.mobile ? '' : '<div class="forward"></div><div class="backward"></div>')
-			.scrollex({
-				top:		'30vh',
-				bottom:		'30vh',
-				delay:		50,
-				initialize:	function() {
-					$(this).addClass('is-inactive');
-				},
-				terminate:	function() {
-					$(this).removeClass('is-inactive');
-				},
-				enter:		function() {
-					$(this).removeClass('is-inactive');
-				},
-				leave:		function() {
-
-					var $this = $(this);
-
-					if ($this.hasClass('onscroll-bidirectional'))
-						$this.addClass('is-inactive');
-
-				}
-			})
-			.children('.inner')
-				//.css('overflow', 'hidden')
-				.css('overflow-y', browser.mobile ? 'visible' : 'hidden')
-				.css('overflow-x', browser.mobile ? 'scroll' : 'hidden')
-				.scrollLeft(0);
-
-		// Style #1.
-			// ...
-
-		// Style #2.
-			$('.gallery')
-				.on('wheel', '.inner', function(event) {
-
-					var	$this = $(this),
-						delta = (event.originalEvent.deltaX * 10);
-
-					// Cap delta.
-						if (delta > 0)
-							delta = Math.min(25, delta);
-						else if (delta < 0)
-							delta = Math.max(-25, delta);
-
-					// Scroll.
-						$this.scrollLeft( $this.scrollLeft() + delta );
-
-				})
-				.on('mouseenter', '.forward, .backward', function(event) {
-
-					var $this = $(this),
-						$inner = $this.siblings('.inner'),
-						direction = ($this.hasClass('forward') ? 1 : -1);
-
-					// Clear move interval.
-						clearInterval(this._gallery_moveIntervalId);
-
-					// Start interval.
-						this._gallery_moveIntervalId = setInterval(function() {
-							$inner.scrollLeft( $inner.scrollLeft() + (5 * direction) );
-						}, 10);
-
-				})
-				.on('mouseleave', '.forward, .backward', function(event) {
-
-					// Clear move interval.
-						clearInterval(this._gallery_moveIntervalId);
-
-				});
-
-		// Lightbox.
-			$('.gallery.lightbox')
-				.on('click', 'a', function(event) {
-
-					var $a = $(this),
-						$gallery = $a.parents('.gallery'),
-						$modal = $gallery.children('.modal'),
-						$modalImg = $modal.find('img'),
-						href = $a.attr('href');
-
-					// Not an image? Bail.
-						if (!href.match(/\.(jpg|gif|png|mp4)$/))
-							return;
-
-					// Prevent default.
-						event.preventDefault();
-						event.stopPropagation();
-
-					// Locked? Bail.
-						if ($modal[0]._locked)
-							return;
-
-					// Lock.
-						$modal[0]._locked = true;
-
-					// Set src.
-						$modalImg.attr('src', href);
-
-					// Set visible.
-						$modal.addClass('visible');
-
-					// Focus.
-						$modal.focus();
-
-					// Delay.
-						setTimeout(function() {
-
-							// Unlock.
-								$modal[0]._locked = false;
-
-						}, 600);
-
-				})
-				.on('click', '.modal', function(event) {
-
-					var $modal = $(this),
-						$modalImg = $modal.find('img');
-
-					// Locked? Bail.
-						if ($modal[0]._locked)
-							return;
-
-					// Already hidden? Bail.
-						if (!$modal.hasClass('visible'))
-							return;
-
-					// Lock.
-						$modal[0]._locked = true;
-
-					// Clear visible, loaded.
-						$modal
-							.removeClass('loaded')
-
-					// Delay.
-						setTimeout(function() {
-
-							$modal
-								.removeClass('visible')
-
-							setTimeout(function() {
-
-								// Clear src.
-									$modalImg.attr('src', '');
-
-								// Unlock.
-									$modal[0]._locked = false;
-
-								// Focus.
-									$body.focus();
-
-							}, 475);
-
-						}, 125);
-
-				})
-				.on('keypress', '.modal', function(event) {
-
-					var $modal = $(this);
-
-					// Escape? Hide modal.
-						if (event.keyCode == 27)
-							$modal.trigger('click');
-
-				})
-				.prepend('<div class="modal" tabIndex="-1"><div class="inner"><img src="" /></div></div>')
-					.find('img')
-						.on('load', function(event) {
-
-							var $modalImg = $(this),
-								$modal = $modalImg.parents('.modal');
-
-							setTimeout(function() {
-
-								// No longer visible? Bail.
-									if (!$modal.hasClass('visible'))
-										return;
-
-								// Set loaded.
-									$modal.addClass('loaded');
-
-							}, 275);
-
-						});
-
-})(jQuery);
+AOS.init();
+// You can also pass an optional settings object
+// below listed default settings
+AOS.init({
+  
+  // Settings that can be overridden on per-element basis, by `data-aos-*` attributes:
+  offset: 120, // offset (in px) from the original trigger point
+  delay: 0, // values from 0 to 3000, with step 50ms
+  duration: 700, // values from 0 to 3000, with step 50ms
+  easing: 'ease', // default easing for AOS animations
+  once: false, // whether animation should happen only once - while scrolling down
+  mirror: false, // whether elements should animate out while scrolling past them
+  anchorPlacement: 'top-bottom', // defines which position of the element regarding to window should trigger the animation
+
+});
+
+// Toggle language function
+function toggleLanguage() {
+  // Obtenemos el idioma actual
+  const currentLang = localStorage.getItem('lang');
+
+  // Si el idioma actual es español, cambiamos a inglés; de lo contrario, cambiamos a español
+  const newLang = currentLang === 'es' ? 'en' : 'es';
+
+  // Guardamos el nuevo idioma en el almacenamiento local
+  localStorage.setItem('lang', newLang);
+
+  // Recargamos la página para aplicar los cambios de idioma
+  location.reload();
+}
+
+// Load language file based on user selection or browser default
+const lang = localStorage.getItem('lang') || navigator.language.split('-')[0];
+const langFile = lang === 'es' ? 'es.json' : 'en.json';
+
+// Manejamos el evento de clic en el botón de cambio de idioma
+document.getElementById('language-toggle').addEventListener('click', toggleLanguage);
+
+// Fetch and load language file
+fetch(`./assets/lang/${langFile}`)
+  .then(response => response.json())
+  .then(data => {
+    // Navigation links
+    const homeLink = document.getElementById('home-link');
+    const workLink = document.getElementById('work-link');
+    const educationLink = document.getElementById('education-link');
+    const contactLink = document.getElementById('contact-link');
+    
+    homeLink.innerText = data.home;
+    workLink.innerText = data.work;
+    educationLink.innerText = data.education;
+    contactLink.innerText = data.contact;
+    
+    // Actualiza el atributo href para que los enlaces sigan funcionando correctamente
+    homeLink.href = '#home';
+    workLink.href = '#work';
+   // educationLink.href = '#education';
+    contactLink.href = '#contact';
+
+    // Update document title
+    document.getElementById('title').innerText = data.title;
+
+    // Presentation
+    const h1Element = document.getElementById('presentation');
+
+    // Actualización del texto HTML con la traducción
+    h1Element.innerHTML = data.presentation;
+    const pElement = document.getElementById('presentation2');
+
+    // Actualiza el contenido del elemento usando innerHTML en lugar de innerText
+    pElement.innerHTML = data.presentation2;
+
+    // Work button
+    const workButton = document.getElementById('work-button');
+    workButton.innerText = data['work-button'];
+
+    // Work section
+
+    // Projects header and title
+    const projectsHeader = document.getElementById('projects-header');
+    projectsHeader.innerText = data['projects-header'];
+    
+    const projectsTitle = document.getElementById('projects-title');
+    projectsTitle.innerText = data['projects-title'];
+
+    // Projects card content
+
+    // Project card 1
+    const projectName1 = document.getElementById('projectname1');
+    projectName1.innerText = data['projectname1'];
+    
+    const projectInfo1 = document.getElementById('projectinfo1');
+    projectInfo1.innerHTML = data['projectinfo1'];
+
+    const readMore1 = document.getElementById('readmore1');
+    readMore1.innerText = data['readmore1'];
+
+    // Project card 2
+    const projectName2 = document.getElementById('projectname2');
+    projectName2.innerText = data['projectname2'];
+    
+    const projectInfo2 = document.getElementById('projectinfo2');
+    projectInfo2.innerHTML = data['projectinfo2'];
+
+    const readMore2 = document.getElementById('readmore2');
+    readMore2.innerText = data['readmore2'];
+
+    // Project card 3
+    const projectName3 = document.getElementById('projectname3');
+    projectName3.innerText = data['projectname3'];
+    
+    const projectInfo3 = document.getElementById('projectinfo3');
+    projectInfo3.innerHTML = data['projectinfo3'];
+
+    const readMore3 = document.getElementById('readmore3');
+    readMore3.innerText = data['readmore3'];
+
+    // Project card 4
+    const projectName4 = document.getElementById('projectname4');
+    projectName4.innerText = data['projectname4'];
+    
+    const projectInfo4 = document.getElementById('projectinfo4');
+    projectInfo4.innerHTML = data['projectinfo4'];
+
+    const readMore4 = document.getElementById('readmore4');
+    readMore4.innerText = data['readmore4'];
+
+  // education section
+
+     // edu header and title
+     const eduHeader = document.getElementById('education-header');
+     eduHeader.innerText = data['education-header'];
+     
+     const eduTitle = document.getElementById('education-title');
+     eduTitle.innerText = data['education-title'];
+
+    // Study card content
+
+    // Study card 1
+    const studyName1 = document.getElementById('studyname1');
+    studyName1.innerText = data['studyname1'];
+
+    const studySchool1 = document.getElementById('studyschool1');
+    studySchool1.innerHTML = data['studyschool1'];
+    
+    const studyInfo1 = document.getElementById('studyinfo1');
+    studyInfo1.innerHTML = data['studyinfo1'];
+
+    // Study card 2
+    const studyName2 = document.getElementById('studyname2');
+    studyName2.innerText = data['studyname2'];
+
+    const studySchool2 = document.getElementById('studyschool2');
+    studySchool2.innerHTML = data['studyschool2'];
+    
+    const studyInfo2 = document.getElementById('studyinfo2');
+    studyInfo2.innerHTML = data['studyinfo2'];
+
+    // Study card 3
+    const studyName3 = document.getElementById('studyname3');
+    studyName3.innerText = data['studyname3'];
+
+    const studySchool3 = document.getElementById('studyschool3');
+    studySchool3.innerHTML = data['studyschool3'];
+    
+    const studyInfo3 = document.getElementById('studyinfo3');
+    studyInfo3.innerHTML = data['studyinfo3'];
+  
+    // Study card 4
+    const studyName4 = document.getElementById('studyname4');
+    studyName4.innerText = data['studyname4'];
+
+    const studySchool4 = document.getElementById('studyschool4');
+    studySchool4.innerHTML = data['studyschool4'];
+    
+    const studyInfo4 = document.getElementById('studyinfo4');
+    studyInfo4.innerHTML = data['studyinfo4'];
+
+    // Study card 5
+    const studyName5 = document.getElementById('studyname5');
+    studyName5.innerText = data['studyname5'];
+
+    const studySchool5 = document.getElementById('studyschool5');
+    studySchool5.innerHTML = data['studyschool5'];
+    
+    const studyInfo5 = document.getElementById('studyinfo5');
+    studyInfo5.innerHTML = data['studyinfo5'];
+
+    // Study card 6
+    const studyName6 = document.getElementById('studyname6');
+    studyName6.innerText = data['studyname6'];
+
+    const studySchool6 = document.getElementById('studyschool6');
+    studySchool6.innerHTML = data['studyschool6'];
+    
+    const studyInfo6 = document.getElementById('studyinfo6');
+    studyInfo6.innerHTML = data['studyinfo6'];
+
+    // Study card 7
+    const studyName7 = document.getElementById('studyname7');
+    studyName7.innerText = data['studyname7'];
+
+    const studySchool7 = document.getElementById('studyschool7');
+    studySchool7.innerHTML = data['studyschool7'];
+    
+    const studyInfo7 = document.getElementById('studyinfo7');
+    studyInfo7.innerHTML = data['studyinfo7'];
+
+  // Contact section
+
+    const contactContact = document.getElementById('contact-contact');
+    contactContact.innerText = data.contact;
+
+    const contactHeader = document.getElementById('contact-header');
+    contactHeader.innerText = data['contact-header'];
+
+    // Contact form placeholders
+    const placeholders = data.placeholders;
+    Object.keys(placeholders).forEach(key => {
+      const input = document.querySelector(`[data-placeholder-id="${key}"]`);
+      if (input) {
+        input.placeholder = placeholders[key];
+      }
+    });
+
+    const contactButton = document.getElementById('contact-button');
+    contactButton.innerText = data['contact-button'];
+
+    // Obtener el texto del botón de idioma del archivo JSON
+    const button = document.getElementById('language-toggle');
+    button.innerHTML = data.languageToggle;
+    
+  })
+  .catch(error => console.error('Error loading language file:', error));
