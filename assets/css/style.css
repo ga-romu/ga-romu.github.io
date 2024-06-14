@@ -214,3 +214,42 @@ img {
     font-size: 24px;
 }
 
+
+#album-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 5px;
+    z-index: 1000;
+}
+
+.album-popup-content {
+    text-align: center;
+}
+
+.album-popup-image {
+    margin: 20px;
+}
+
+.album-popup-image img {
+    width: 80%;
+    height: 80%;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+#close-button, #prev-button, #next-button {
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#close-button:hover, #prev-button:hover, #next-button:hover {
+    background-color: #3e8e41;
+}

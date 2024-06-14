@@ -29,6 +29,33 @@ function toggleLanguage() {
   location.reload();
 }
 
+// Album functions
+let albumImages = ["assets/images/album1.jpg", "assets/images/album2.jpg", "assets/images/album3.jpg"];
+let currentIndex = 0;
+
+function showAlbum() {
+    document.getElementById("album-popup").classList.remove("d-none");
+    document.getElementById("album-image").src = albumImages[currentIndex];
+}
+
+function hideAlbum() {
+    document.getElementById("album-popup").classList.add("d-none");
+}
+
+function prevImage() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        document.getElementById("album-image").src = albumImages[currentIndex];
+    }
+}
+
+function nextImage() {
+    if (currentIndex < albumImages.length - 1) {
+        currentIndex++;
+        document.getElementById("album-image").src = albumImages[currentIndex];
+    }
+}
+
 // Load language file based on user selection or browser default
 const lang = localStorage.getItem('lang') || navigator.language.split('-')[0];
 const langFile = lang === 'es' ? 'es.json' : 'en.json';
